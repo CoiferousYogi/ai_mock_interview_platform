@@ -81,7 +81,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         const idToken = await userCredential.user.getIdToken();
 
         if (!idToken) {
-          toast.error("Sign-In Failed");
+          toast.error("Sign-In Failed. Please check your credentials.");
           return;
         }
 
@@ -94,9 +94,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
         router.push("/");
         //console.log("SIGN-IN", values);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      toast.error("There was an error: ${error}");
+
+      if ((error.code = "auth/invalid-credential")) {
+        toast.error("Invalid Email or Password");
+      } else {
+        toast.error(`There was an error: ${error}`);
+      }
     }
   }
 
