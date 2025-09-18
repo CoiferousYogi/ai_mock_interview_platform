@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
 
-import { Button } from "./button";
+import { Button } from "./ui/button";
 import DisplayTechIcons from "./DisplayTechIcons";
 
 import { cn, getRandomInterviewCover } from "@/lib/utils";
@@ -35,7 +35,11 @@ const InterviewCard = async ({
 
   const formattedDate = dayjs(
     feedback?.createdAt || createdAt || Date.now()
-  ).format("MMM D, YYYY");
+  ).format("D MMM, YYYY");
+
+  if (feedback !== null) {
+    console.log(feedback);
+  }
 
   return (
     <div className="card-border w-[360px] max-sm:w-full min-h-96">

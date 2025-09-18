@@ -1,5 +1,4 @@
 import Agent from "@/app/components/Agent";
-import DisplayTechIcons from "@/components/ui/DisplayTechIcons";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import {
   getFeedbackByInterviewId,
@@ -9,6 +8,7 @@ import { getRandomInterviewCover } from "@/lib/utils";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import React from "react";
+import DisplayTechIcons from "@/components/DisplayTechIcons";
 
 const InterviewDetails = async ({ params }: RouteParams) => {
   const { id } = await params;

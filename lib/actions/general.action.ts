@@ -1,9 +1,10 @@
 "use server";
 
-import { feedbackSchema } from "@/constants";
-import { db } from "@/firebase/admin";
-import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
+import { google } from "@ai-sdk/google";
+
+import { db } from "@/firebase/admin";
+import { feedbackSchema } from "@/constants";
 
 export async function createFeedback(params: CreateFeedbackParams) {
   const { interviewId, userId, transcript, feedbackId } = params;
@@ -68,18 +69,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
 export async function getInterviewById(id: string): Promise<Interview | null> {
   const interview = await db.collection("interviews").doc(id).get();
 
-  if (!interview.exists) {
-    console.warn("Interview not found for ID: ", id);
-    return null;
-  }
-
-  const data = interview.data();
-  console.log("Interview found", data);
-
-  return {
-    id: interview.id,
-    ...data,
-  } as Interview;
+  return interview.data() as Interview | null;
 }
 
 export async function getFeedbackByInterviewId(
@@ -87,24 +77,17 @@ export async function getFeedbackByInterviewId(
 ): Promise<Feedback | null> {
   const { interviewId, userId } = params;
 
-  const feedback = await db
+  const querySnapshot = await db
     .collection("feedback")
     .where("interviewId", "==", interviewId)
-    // .where('userId', '==', userId)
+    .where("userId", "==", userId)
     .limit(1)
     .get();
 
-  if (feedback.empty) {
-    console.log("No matching feedback found.");
-    return null;
-  }
+  if (querySnapshot.empty) return null;
 
-  const feedbackDoc = feedback.docs[0];
-
-  return {
-    id: feedbackDoc.id,
-    ...feedbackDoc.data(),
-  } as Feedback;
+  const feedbackDoc = querySnapshot.docs[0];
+  return { id: feedbackDoc.id, ...feedbackDoc.data() } as Feedback;
 }
 
 export async function getLatestInterviews(
@@ -114,9 +97,9 @@ export async function getLatestInterviews(
 
   const interviews = await db
     .collection("interviews")
+    .orderBy("createdAt", "desc")
     .where("finalized", "==", true)
     .where("userId", "!=", userId)
-    .orderBy("createdAt", "desc")
     .limit(limit)
     .get();
 
@@ -126,7 +109,7 @@ export async function getLatestInterviews(
   })) as Interview[];
 }
 
-export async function getInterveiwsByUserId(
+export async function getInterviewsByUserId(
   userId: string
 ): Promise<Interview[] | null> {
   const interviews = await db
@@ -134,8 +117,6 @@ export async function getInterveiwsByUserId(
     .where("userId", "==", userId)
     .orderBy("createdAt", "desc")
     .get();
-
-  // console.log('interr', interviews);
 
   return interviews.docs.map((doc) => ({
     id: doc.id,
