@@ -1,13 +1,9 @@
-import { getRandomInterviewCover } from "@/lib/utils";
-import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
+
 import { db } from "@/firebase/admin";
+import { getRandomInterviewCover } from "@/lib/utils";
 
-export async function GET() {
-  return Response.json({ success: true, data: "Thank You!" }, { status: 200 });
-}
-
-// amount = amount of questions
 export async function POST(request: Request) {
   const { type, role, level, techstack, amount, userid } = await request.json();
 
@@ -30,9 +26,9 @@ export async function POST(request: Request) {
     });
 
     const interview = {
-      role,
-      type,
-      level,
+      role: role,
+      type: type,
+      level: level,
       techstack: techstack.split(","),
       questions: JSON.parse(questions),
       userId: userid,
@@ -45,8 +41,11 @@ export async function POST(request: Request) {
 
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.log(error);
-
-    return Response.json({ success: false, error }, { status: 500 });
+    console.error("Error:", error);
+    return Response.json({ success: false, error: error }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return Response.json({ success: true, data: "Thank you!" }, { status: 200 });
 }
